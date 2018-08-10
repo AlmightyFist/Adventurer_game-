@@ -72,6 +72,12 @@ class Game(object):
         #Platformy
         self.all_platforms.update()
 
+        # Utrzymanie odpowiedniej ilosci wrogów na ekranie
+        self.create_enemy()
+
+        # Wrogowie
+        self.all_enemies.update()
+
         #Sprawdzenie kolizji player-platform
         platform_hits = pygame.sprite.spritecollide(self.player,self.all_platforms, False )
         if platform_hits:
@@ -118,12 +124,6 @@ class Game(object):
         #Sprawdzenie poziomu zycia gracza
         if self.player.health <= 0:
             self.game_over_screen()
-
-        #Utrzymanie odpowiedniej ilosci wrogów na ekranie
-        self.create_enemy()
-
-        #Wrogowie
-        self.all_enemies.update()
 
         #Sprawdzenie kolizji gracz-wrog
         self.collision_check()

@@ -71,41 +71,56 @@ class Adventurer(pygame.sprite.Sprite):
 
 
         #Obsługa ruchu
+
+        self.walkCount = 0
+        self.standCount = 0
         self.left = False #lewa strona
         self.right = True # prawa strona
         self.standing = False #stanie
         self.isJump = False #skok
+        self.JumpCount = 0 #skok
         self.Jumped = False #skok
-        self.attack_2 = False
 
-        #Zmienne do obsługi animacji
-        self.walkCount = 0 #bieganie
-        self.standCount = 0 # stanie
-        self.JumpCount = 0  # skok
-        self.attack2Count = 0 # atak nr 2
-
-    #Aktualizacja widoku postaci na ekranie
     def draw(self):
 
-        if self.attack_2:
+        if not(self.isJump):# Animacja bez skoku
 
-            self.draw_attack_2()
+            if not(self.standing): #Animacja biegu, prawo, lewo
 
-        else:
+                if self.walkCount + 1 >= 15:  # 5 animacji, 3 * 5 = 15
+                    self.walkCount = 0
 
-            if not(self.isJump):# Animacja bez skoku
+                if self.left:
+                    self.image = Adventurer.run_left[self.walkCount // 3] # obrazków animacja, zmiana animacji co 3 odtworzenia pętli 3*9 = 27
+                    self.walkCount += 1
+                elif self.right:
+                    self.image = Adventurer.run_right[self.walkCount // 3]
+                    self.walkCount += 1
+            else: #Animacja stania, prawo, lewo
 
-                if not(self.standing): #Animacja biegu, prawo, lewo
+                if  self.standCount + 1 >= 21: # 3 obrazki animacji stania, po 5 pętli na 1
+                    self.standCount = 0
 
-                    self.draw_run()
+                if self.right:
+                    self.image = Adventurer.stand_right[self.standCount // 7]
+                    self.standCount += 1
 
-                else: #Animacja stania, prawo, lewo
+                elif self.left:
+                    self.image = Adventurer.stand_left[self.standCount // 7]
+                self.standCount += 1
 
-                    self.draw_stand()
+        else: # Animacja ze skokiem
 
-            else: # Animacja ze skokiem
-
-                self.draw_jump()
+            if self.right:
+                self.image = Adventurer.jump_right[self.JumpCount // 8]
+                self.JumpCount +=1
+            elif self.left:
+                self.image = Adventurer.jump_left[self.JumpCount // 8]
+                self.JumpCount += 1
+            if self.JumpCount >= 64:
+                self.JumpCount = 0
+                self.isJump = False
+                self.Jumped = False
 
         self.screen.blit(self.image,(self.x, self.y))
 
@@ -116,65 +131,6 @@ class Adventurer(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = self.x
         self.rect.y = self.y
-
-    # Widok skosu
-    def draw_jump(self):
-
-        if self.right:
-            self.image = Adventurer.jump_right[self.JumpCount // 8]
-            self.JumpCount += 1
-        elif self.left:
-            self.image = Adventurer.jump_left[self.JumpCount // 8]
-            self.JumpCount += 1
-        if self.JumpCount >= 64:
-            self.JumpCount = 0
-            self.isJump = False
-            self.Jumped = False
-
-    #Widok stania
-    def draw_stand(self):
-
-        if self.standCount + 1 >= 21:  # 3 obrazki animacji stania, po 5 pętli na 1
-            self.standCount = 0
-
-        if self.right:
-            self.image = Adventurer.stand_right[self.standCount // 7]
-            self.standCount += 1
-
-        elif self.left:
-            self.image = Adventurer.stand_left[self.standCount // 7]
-        self.standCount += 1
-
-    #Widok biegu
-    def draw_run(self):
-
-        if self.walkCount + 1 >= 15:  # 5 animacji, 3 * 5 = 15
-            self.walkCount = 0
-
-        if self.left:
-            self.image = Adventurer.run_left[self.walkCount // 3]  # obrazków animacja, zmiana animacji co 3 odtworzenia pętli 3*9 = 27
-            self.walkCount += 1
-        elif self.right:
-            self.image = Adventurer.run_right[self.walkCount // 3]
-            self.walkCount += 1
-
-    def draw_attack_2(self):
-
-        self.isJump = False #wyłączenie animacji skoku
-        self.Jumped = False #wyzerowanie animacji skosu
-
-        if self.attack2Count + 1 > 18: #6 animacji 6*3 = 18
-            self.attack2Count = 0
-            self.attack_2 = False
-
-        if self.right:
-            self.image = Adventurer.attack2_right[self.attack2Count //3]
-            self.attack2Count += 1
-        elif self.left:
-            self.image = Adventurer.attack2_left[self.attack2Count // 3]
-            self.attack2Count += 1
-
-
 
     def Jump(self, all_platforms):
 
@@ -187,10 +143,13 @@ class Adventurer(pygame.sprite.Sprite):
             self.isJump = True
             self.JumpCount = 0
         if self.isJump:
-
-            if (self.image in Adventurer.jump_right[2:6] or self.image in Adventurer.jump_left[2:6]) and self.Jumped == False:
+            #Przygotowanie animacji postaci do skoku
+            if self.image in Adventurer.jump_right[0:2] or  self.image in Adventurer.jump_left[0:2]:
+                self.vel[1] = 0
+            #Wznoszenie, animacja skoku
+            elif (self.image in Adventurer.jump_right[2:6] or self.image in Adventurer.jump_left[2:6]) and self.Jumped == False:
                 self.vel[1] -= self.jump_power
-                #Zmienna określa czy został wykonany skok - dodanie prędkości w pionie tylko raz podczas kazdego skoku
+                #Zmienna określa czy został wykonany skok - dodanie prędkości w pionie
                 self.Jumped = True
 
 
@@ -222,11 +181,6 @@ class Adventurer(pygame.sprite.Sprite):
         if keys[pygame.K_UP] or self.isJump:
             self.Jump(all_platforms)
 
-        # Moduł ataku nr 2
-        if  keys[pygame.K_SPACE]:
-            self.attack_2 = True
-
-
 
         # Równania ruchu
         self.vel += self.acc
@@ -237,8 +191,8 @@ class Adventurer(pygame.sprite.Sprite):
 
         pygame.draw.rect(self.screen, (0,255,0), (self.rect.x, self.rect.y - 20, (50*self.health/100),5))
 
-
-
+    #Obsługa przycisków gracza
+    def player_events(self):
 
 
 
