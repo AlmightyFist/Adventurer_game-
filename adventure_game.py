@@ -1,9 +1,10 @@
 import random
 
 import pygame
+from Enemy import Skeleton
 from adventurer import Adventurer
 from platforms import Platform
-from Enemy import Skeleton
+
 
 class Game(object):
 
@@ -19,7 +20,7 @@ class Game(object):
         self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
 
         #Ustawienia gry
-        self.PLATFORM_NUMBER = 8
+        self.PLATFORM_NUMBER = 5
         self.SKELETON_NUMBER = 4
 
         #Zegar
@@ -28,7 +29,8 @@ class Game(object):
         #Tworzenie instancji gracza
         self.player = Adventurer(250,250, self.screen,self.SCREEN_WIDTH, self.SCREEN_HEIGHT )
 
-
+        #Zmienna do obsługi kolizji gracza z wrogiem
+        self.hit_delay = 0
 
         #Tworzenie grup sprite
         self.all_sprites = pygame.sprite.Group()
@@ -95,7 +97,7 @@ class Game(object):
 
         #Utrzymanie odpowieniej ilosci platform na ekranie
         while len(self.all_platforms) < self.PLATFORM_NUMBER:
-            width = random.randrange(50,100)
+            width = random.randrange(100,300)
             height = random.randrange(5,30)
             p = Platform(random.randrange(0,self.SCREEN_WIDTH - width),random.randrange(-30,-10),width,height)
             self.all_platforms.add(p)
@@ -113,8 +115,18 @@ class Game(object):
         if len(self.all_platforms) == 0:
             self.game_over_screen()
 
+        #Sprawdzenie poziomu zycia gracza
+        if self.player.health <= 0:
+            self.game_over_screen()
+
         #Utrzymanie odpowiedniej ilosci wrogów na ekranie
         self.create_enemy()
+
+        #Wrogowie
+        self.all_enemies.update()
+
+        #Sprawdzenie kolizji gracz-wrog
+        self.collision_check()
 
     # Tworzenie obiektów na ekranie
     def redrawGameWindow(self):
@@ -122,7 +134,10 @@ class Game(object):
         self.screen.fill((0,0,0))
         self.all_platforms.draw(self.screen)
         self.player.draw()
-        self.all_enemies.draw(self.screen)
+
+        #Rysowanie przeciwników na podstawie stworzonej metody
+        for enemy in self.all_enemies.sprites():
+            enemy.draw()
 
         self.draw_text(str(self.player.score), 30, (255,0,0), self.SCREEN_WIDTH/2, 20)
         pygame.display.update()
@@ -174,7 +189,7 @@ class Game(object):
             top_platforms = [] # lista zawierające platformy znajdujące się powyżej górnej granicy ekranu
 
             for plat in self.all_platforms.sprites():
-                if plat.rect.y < 0 and plat.is_skeleton_on == False:
+                if plat.rect.y < 0 and plat.is_skeleton_on == False: #Tworzenie szkielete tylko na platformach powyżej granicy ekranu i bez szkieleta na niej
                     top_platforms.append(plat)
 
             if top_platforms:
@@ -187,10 +202,20 @@ class Game(object):
                 y = plat.rect.top - 33
 
 
-                enemy = Skeleton(x, y, self.screen)
+                enemy = Skeleton(x, y, self.screen, plat)
                 self.all_sprites.add(enemy)
                 self.all_enemies.add(enemy)
 
                 #Platforma może posiadać tylko 1 szkieleta
                 plat.is_skeleton_on = True
+
+    # Metoda sprawdzająca kolizje gracza z przeciwnikami oraz wystrzelonymi przez nich pociskami
+    def collision_check(self):
+
+        kill = False
+        if pygame.sprite.spritecollide(self.player, self.all_enemies,kill):
+            self.hit_delay += 1
+            if self.hit_delay >= 10:
+                self.player.health -= 10
+                self.hit_delay = 0
 

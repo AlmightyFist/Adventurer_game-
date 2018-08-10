@@ -54,6 +54,7 @@ class Adventurer(pygame.sprite.Sprite):
         self.acc = pygame.math.Vector2(0,1) #acceleration
         self.jump_power = 20 #jump
         self.friction = -0.08 # Opór powietrza
+        self.health = 100
 
         #Punkacja
         self.score = 0
@@ -112,6 +113,7 @@ class Adventurer(pygame.sprite.Sprite):
                 self.Jumped = False
 
         self.screen.blit(self.image,(self.x, self.y))
+        self.health_bar()
 
         #Update atrybutu rect gracza
         self.rect = self.image.get_rect()
@@ -173,6 +175,9 @@ class Adventurer(pygame.sprite.Sprite):
         self.vel += self.acc
         self.y += self.vel[1] + 0.5 * self.acc[1]
 
+    def health_bar(self):
+
+        pygame.draw.rect(self.screen, (0,255,0), (self.rect.x, self.rect.y - 20, (50*self.health/100),5))
 
 
 
