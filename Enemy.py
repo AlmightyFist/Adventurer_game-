@@ -49,11 +49,14 @@ class Skeleton(pygame.sprite.Sprite):
             self.image = Skeleton.walk_right[self.walkCount // 3]
             self.walkCount += 1
 
+        #Tworzenie maski obiektu
+        self.mask = pygame.mask.from_surface(self.image)
 
         self.screen.blit(self.image, (self.rect.x, self.rect.y))
 
     def update(self):
 
+        #Zmiana kierunku ruchu po osiągnięciu brzgu platformy
         if self.vel[0] >0:
             if self.rect.x + self.vel[0] <= (self.platform.rect.x + self.platform.width):
                 self.rect.x += self.vel[0]

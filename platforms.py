@@ -17,6 +17,9 @@ class Platform(pygame.sprite.Sprite):
         #Ustawienia platformy w grze
         self.is_skeleton_on = False
 
+        #Maska platformy
+        self.mask = pygame.mask.from_surface(self.image)
+
 
     def update(self):
         pass

@@ -51,9 +51,10 @@ class Game(object):
         #Dodawanie spritów do grup
         self.all_sprites.add(self.player)
         for plat in self.PLATFORM_LIST:
-            p = Platform(*plat)
+            p = Platform(*plat) #wpisanie argumentów do argumentów klasy
             self.all_sprites.add(p)
             self.all_platforms.add(p)
+
 
     #Obsługa eventów
     def events(self):
@@ -79,9 +80,10 @@ class Game(object):
         self.all_enemies.update()
 
         #Sprawdzenie kolizji player-platform
-        platform_hits = pygame.sprite.spritecollide(self.player,self.all_platforms, False )
-        if platform_hits:
-            self.player.y = platform_hits[0].rect.top - self.player.height #ustawienie gracza na platformie w przypadku kolizji
+        platform_colide = pygame.sprite.spritecollide(self.player,self.all_platforms, False )
+
+        if platform_colide:
+            self.player.y = platform_colide[0].rect.top - self.player.height #ustawienie gracza na platformie w przypadku kolizji
             self.player.vel[1] = 0 #usunięcie przemieszczenia pionowego
 
         # Przesuwanie "ekranu" w góre jeżeli gracz osiagnie 3/4 wysokości ekranu
@@ -139,6 +141,7 @@ class Game(object):
         for enemy in self.all_enemies.sprites():
             enemy.draw()
 
+        #Wyświetlanie wyniku
         self.draw_text(str(self.player.score), 30, (255,0,0), self.SCREEN_WIDTH/2, 20)
         pygame.display.update()
 
@@ -213,9 +216,11 @@ class Game(object):
     def collision_check(self):
 
         kill = False
-        if pygame.sprite.spritecollide(self.player, self.all_enemies,kill):
-            self.hit_delay += 1
-            if self.hit_delay >= 10:
-                self.player.health -= 10
-                self.hit_delay = 0
+        coliding_enemies = pygame.sprite.spritecollide(self.player, self.all_enemies,kill)
+        if coliding_enemies:
+            if pygame.sprite.spritecollide(self.player, coliding_enemies,kill, pygame.sprite.collide_mask):
+                self.hit_delay += 1
+                if self.hit_delay >= 10:
+                    self.player.health -= 10
+                    self.hit_delay = 0
 

@@ -109,6 +109,9 @@ class Adventurer(pygame.sprite.Sprite):
 
         self.screen.blit(self.image,(self.x, self.y))
 
+        #Utworzenie maski obiektu
+        self.mask = pygame.mask.from_surface(self.image)
+
         #Wyświetlenie paska życia
         self.health_bar()
 
@@ -116,6 +119,10 @@ class Adventurer(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = self.x
         self.rect.y = self.y
+        self.rect = self.rect.inflate(-35,0)
+        #Wyświetlanie player.rect
+        #pygame.draw.rect(self.screen, (255,255,255), (self.rect.x, self.rect.y, self.rect.width, self.rect.height),2)
+
 
     # Widok skosu
     def draw_jump(self):
