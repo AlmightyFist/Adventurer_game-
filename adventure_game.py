@@ -226,9 +226,19 @@ class Game(object):
                 #Jeżeli gracz nie blokuje ataków odejmowane jest mu życie
                 for enemy in coliding_enemies_mask:
 
+                    #Odwracanie wroga w stronę gracza
+                    if enemy.rect.x  > self.player.rect.x:
+                        enemy.left = True
+                        enemy.right = False
+                        enemy.vel[0] = - enemy.vel[0]
+                    elif enemy.rect.x < self.player.rect.x:
+                        enemy.left = False
+                        enemy.right = True
+                        enemy.vel[0] = - enemy.vel[0]
+
                     enemy.attack = True #włączenie animacji ataku
 
-                    if enemy.hit :
+                    if enemy.hit:
                         self.player.health -= 10
                         enemy.hit = False
 
