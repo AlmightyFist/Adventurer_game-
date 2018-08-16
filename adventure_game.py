@@ -215,12 +215,32 @@ class Game(object):
     # Metoda sprawdzająca kolizje gracza z przeciwnikami oraz wystrzelonymi przez nich pociskami
     def collision_check(self):
 
-        kill = False
-        coliding_enemies = pygame.sprite.spritecollide(self.player, self.all_enemies,kill)
+        #Sprawdzenie oglnej kolizji z wrogami
+        coliding_enemies = pygame.sprite.spritecollide(self.player, self.all_enemies,False)
         if coliding_enemies:
-            if pygame.sprite.spritecollide(self.player, coliding_enemies,kill, pygame.sprite.collide_mask):
-                self.hit_delay += 1
-                if self.hit_delay >= 10:
-                    self.player.health -= 10
-                    self.hit_delay = 0
+            #Sprawdzenie kolizji mask
+            coliding_enemies_mask = pygame.sprite.spritecollide(self.player, coliding_enemies,False, pygame.sprite.collide_mask)
+            if coliding_enemies_mask:
+
+
+                #Jeżeli gracz nie blokuje ataków odejmowane jest mu życie
+                for enemy in coliding_enemies_mask:
+
+                    enemy.attack = True #włączenie animacji ataku
+
+                    if enemy.hit :
+                        self.player.health -= 10
+                        enemy.hit = False
+
+                    #Jeżeli gracz atakuje, odebranie życia wrogowi
+
+                    if self.player.attack == False:
+                        if self.player.attack2Count >= 12 and self.player.attack2Count <= 15: #zadanie obrażeń tylko w odpowiednim miejscu animacji
+
+                            enemy.health -= self.player.attack_2_damage
+                            self.player.attack = True
+
+
+
+
 

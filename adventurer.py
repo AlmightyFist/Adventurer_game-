@@ -76,7 +76,12 @@ class Adventurer(pygame.sprite.Sprite):
         self.standing = False #stanie
         self.isJump = False #skok
         self.Jumped = False #skok
-        self.attack_2 = False
+
+        #Zmienne ataków
+        self.hit_blocked = False # blokowanie ciosów - nie wykorzystane
+        self.attack = False #atak w ogóle
+        self.attack_2 = False #atak 2
+        self.attack_2_damage = 10
 
         #Zmienne do obsługi animacji
         self.walkCount = 0 #bieganie
@@ -173,13 +178,16 @@ class Adventurer(pygame.sprite.Sprite):
         if self.attack2Count + 1 > 18: #6 animacji 6*3 = 18
             self.attack2Count = 0
             self.attack_2 = False
+            self.hit_blocked = False # Po zakończeniu sekwencji ataku wyłączony zostaje blok ataku
 
-        if self.right:
-            self.image = Adventurer.attack2_right[self.attack2Count //3]
-            self.attack2Count += 1
-        elif self.left:
-            self.image = Adventurer.attack2_left[self.attack2Count // 3]
-            self.attack2Count += 1
+        if self.attack_2:
+            if self.right:
+                self.image = Adventurer.attack2_right[self.attack2Count //3]
+                self.attack2Count += 1
+            elif self.left:
+                self.image = Adventurer.attack2_left[self.attack2Count // 3]
+                self.attack2Count += 1
+
 
 
 
@@ -232,6 +240,7 @@ class Adventurer(pygame.sprite.Sprite):
         # Moduł ataku nr 2
         if  keys[pygame.K_SPACE]:
             self.attack_2 = True
+            self.attack = False
 
 
 
